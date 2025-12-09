@@ -9,27 +9,27 @@ let mouse = new THREE.Vector2();
 let clickableObjects = [];
 let autoRotate = false;
 
-// Object information data
+// Change image paths from 'images/' to just the filename
 const objectInfo = {
     'headphone': {
         title: '🎧 Headphones',
         description: 'My favorite wireless headphones for music and calls. Noise-cancelling feature helps me focus.',
-        image: 'images/headphone.jpg'
+        image: 'headphone.jpg'  // Changed from 'images/headphone.jpg'
     },
     'book': {
         title: '📚 Book',
         description: '"Atomic Habits" by James Clear. Learning about building good habits and breaking bad ones.',
-        image: 'images/book.jpg'
+        image: 'book.jpg'  // Changed from 'images/book.jpg'
     },
     'letter': {
         title: '💌 Letter',
         description: 'A special handwritten letter from a dear friend. Kept as a precious memory.',
-        image: 'images/letter.jpg'
+        image: 'letter.jpg'  // Changed from 'images/letter.jpg'
     },
     'camera': {
         title: '📷 Camera',
         description: 'Vintage film camera. Love capturing moments with this classic piece.',
-        image: 'images/camera.jpg'
+        image: 'camera.jpg'  // Changed from 'images/camera.jpg'
     }
 };
 

@@ -1,106 +1,503 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Happy Birthday - Pink Bedroom</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎂 Happy Birthday! - Pink Bedroom 3D</title>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        /* Loading Screen */
         #loading {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-family: Arial, sans-serif;
-            font-size: 20px;
+            text-align: center;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px 50px;
+            border-radius: 15px;
+            min-width: 300px;
+        }
+        
+        #loading h2 {
+            margin-bottom: 15px;
+            color: #ff6b9d;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid #ff6b9d;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Title */
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            z-index: 10;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        #title h1 {
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #ff6b9d, #ffd166);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        #title p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Controls Panel */
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            z-index: 10;
+            display: none;
+        }
+        
+        #controls h3 {
+            color: #ff6b9d;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ff6b9d;
+            padding-bottom: 5px;
+        }
+        
+        /* Footer */
+        #footer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: white;
+            text-align: right;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            z-index: 10;
+        }
+        
+        /* Error Message */
+        #error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div id="loading">Loading Pink Bedroom... 🎂</div>
-    
+    <div id="container">
+        <!-- Title -->
+        <div id="title">
+            <h1>🎂 HAPPY BIRTHDAY! 🎉</h1>
+            <p>Explore the Pink Bedroom</p>
+        </div>
+        
+        <!-- Loading Screen -->
+        <div id="loading">
+            <h2>Loading 3D Room...</h2>
+            <div class="spinner"></div>
+            <p id="progress">Initializing...</p>
+            <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
+                Please wait while we load your pink bedroom
+            </p>
+        </div>
+        
+        <!-- Controls Panel -->
+        <div id="controls">
+            <h3>🎮 Controls</h3>
+            <p>• Left Click + Drag = Rotate View</p>
+            <p>• Right Click + Drag = Pan Camera</p>
+            <p>• Scroll = Zoom In/Out</p>
+            <p>• Press 'R' = Reset View</p>
+            <p>• Press 'F' = Toggle Fullscreen</p>
+        </div>
+        
+        <!-- Footer -->
+        <div id="footer">
+            <p>GLB Model: pink_bedroom_miside.glb</p>
+            <p>Powered by Three.js & GitHub Pages</p>
+        </div>
+        
+        <!-- Error Message -->
+        <div id="error">
+            <h3>⚠️ Error Loading Model</h3>
+            <p id="error-message"></p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                Please check if the GLB file exists in the repository
+            </p>
+        </div>
+    </div>
+
     <script>
-        // ITO NA ANG WORKING URL MO!
-        const modelUrl = 'https://raw.githubusercontent.com/chllbv/Happy-Birthday/refs/heads/main/pink_bedroom_miside.glb';
+        // ====================
+        // CONFIGURATION
+        // ====================
+        const CONFIG = {
+            modelUrl: 'https://raw.githubusercontent.com/chllbv/Happy-Birthday/refs/heads/main/pink_bedroom_miside.glb',
+            backgroundColor: 0x1a1a2e,
+            cameraPosition: { x: 0, y: 2, z: 5 },
+            lightColor: 0xff6b9d,
+            ambientLightIntensity: 0.5,
+            directionalLightIntensity: 0.8
+        };
         
-        // Scene setup
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
+        // ====================
+        // INITIALIZE THREE.JS
+        // ====================
+        let scene, camera, renderer, controls, model;
         
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(CONFIG.backgroundColor);
+            
+            // Create camera
+            camera = new THREE.PerspectiveCamera(
+                75, 
+                window.innerWidth / window.innerHeight, 
+                0.1, 
+                1000
+            );
+            camera.position.set(
+                CONFIG.cameraPosition.x,
+                CONFIG.cameraPosition.y,
+                CONFIG.cameraPosition.z
+            );
+            
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            
+            // Add canvas to container
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Add orbit controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.screenSpacePanning = false;
+            controls.maxPolarAngle = Math.PI;
+            controls.minDistance = 1;
+            controls.maxDistance = 50;
+            
+            // Add lighting
+            addLighting();
+            
+            // Add decorative particles
+            addParticles();
+            
+            // Load the model
+            loadModel();
+            
+            // Start animation loop
+            animate();
+            
+            // Add event listeners
+            setupEventListeners();
+            
+            // Update loading text
+            document.getElementById('progress').textContent = 'Setting up 3D environment...';
+        }
         
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
+        // ====================
+        // LIGHTING
+        // ====================
+        function addLighting() {
+            // Ambient light
+            const ambientLight = new THREE.AmbientLight(
+                0xffffff, 
+                CONFIG.ambientLightIntensity
+            );
+            scene.add(ambientLight);
+            
+            // Main directional light
+            const directionalLight = new THREE.DirectionalLight(
+                0xffffff, 
+                CONFIG.directionalLightIntensity
+            );
+            directionalLight.position.set(10, 20, 10);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+            
+            // Pink accent light
+            const pinkLight = new THREE.PointLight(
+                CONFIG.lightColor, 
+                1, 
+                20
+            );
+            pinkLight.position.set(5, 5, 5);
+            scene.add(pinkLight);
+        }
         
-        // Controls
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
+        // ====================
+        // MODEL LOADING
+        // ====================
+        function loadModel() {
+            const loader = new THREE.GLTFLoader();
+            
+            loader.load(
+                CONFIG.modelUrl,
+                // Success callback
+                function(gltf) {
+                    model = gltf.scene;
+                    scene.add(model);
+                    
+                    // Enable shadows for all children
+                    model.traverse(function(child) {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
+                    // Center and scale model
+                    centerAndScaleModel();
+                    
+                    // Hide loading screen, show controls
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('controls').style.display = 'block';
+                    
+                    console.log('✅ 3D Model loaded successfully!');
+                    console.log('🎂 Happy Birthday! Enjoy your pink bedroom!');
+                },
+                // Progress callback
+                function(xhr) {
+                    if (xhr.lengthComputable) {
+                        const percent = (xhr.loaded / xhr.total * 100).toFixed(1);
+                        document.getElementById('progress').textContent = `Loading model... ${percent}%`;
+                    }
+                },
+                // Error callback
+                function(error) {
+                    console.error('❌ Error loading model:', error);
+                    
+                    // Show error message
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('error-message').textContent = 
+                        error.message || 'Failed to load 3D model.';
+                    
+                    // Add fallback cube
+                    addFallbackCube();
+                }
+            );
+        }
         
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
+        // ====================
+        // MODEL UTILITIES
+        // ====================
+        function centerAndScaleModel() {
+            if (!model) return;
+            
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            
+            // Center the model
+            model.position.sub(center);
+            
+            // Auto-scale to fit view
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 3 / maxDim;
+            model.scale.multiplyScalar(scale);
+            
+            // Update controls target
+            controls.target.copy(new THREE.Vector3(0, size.y / 2, 0));
+            controls.update();
+            
+            console.log(`📐 Model dimensions: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`);
+        }
         
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(5, 10, 7);
-        scene.add(directionalLight);
+        function addFallbackCube() {
+            const geometry = new THREE.BoxGeometry(2, 2, 2);
+            const material = new THREE.MeshStandardMaterial({ 
+                color: CONFIG.lightColor,
+                emissive: CONFIG.lightColor,
+                emissiveIntensity: 0.2
+            });
+            const cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+            
+            document.getElementById('controls').style.display = 'block';
+            document.getElementById('error').innerHTML += 
+                '<p style="margin-top: 10px;">Showing fallback cube instead.</p>';
+        }
         
-        // Load the model
-        const loader = new THREE.GLTFLoader();
-        
-        loader.load(
-            modelUrl,
-            function(gltf) {
-                const model = gltf.scene;
-                scene.add(model);
-                
-                // Center and scale
-                const box = new THREE.Box3().setFromObject(model);
-                const center = box.getCenter(new THREE.Vector3());
-                const size = box.getSize(new THREE.Vector3());
-                
-                // Remove loading text
-                document.getElementById('loading').style.display = 'none';
-                
-                console.log('✅ Model loaded successfully!');
-                console.log('Model size:', size);
-            },
-            function(xhr) {
-                // Loading progress
-                const percent = (xhr.loaded / xhr.total * 100).toFixed(1);
-                document.getElementById('loading').textContent = `Loading... ${percent}%`;
-            },
-            function(error) {
-                console.error('Error loading model:', error);
-                document.getElementById('loading').textContent = 'Error loading model. Check console.';
-                document.getElementById('loading').style.color = 'red';
+        // ====================
+        // DECORATIVE ELEMENTS
+        // ====================
+        function addParticles() {
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particleCount = 200;
+            const positions = new Float32Array(particleCount * 3);
+            
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 40;
+                positions[i + 1] = (Math.random() - 0.5) * 40;
+                positions[i + 2] = (Math.random() - 0.5) * 40;
             }
-        );
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.1,
+                transparent: true,
+                opacity: 0.5
+            });
+            
+            const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+            
+            // Store for animation
+            scene.userData.particles = particles;
+        }
         
-        // Animation
+        // ====================
+        // ANIMATION LOOP
+        // ====================
         function animate() {
             requestAnimationFrame(animate);
+            
+            // Animate particles if they exist
+            if (scene.userData.particles) {
+                scene.userData.particles.rotation.y += 0.001;
+            }
+            
+            // Update controls
             controls.update();
+            
+            // Render scene
             renderer.render(scene, camera);
         }
-        animate();
         
-        // Handle resize
-        window.addEventListener('resize', function() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        // ====================
+        // EVENT LISTENERS
+        // ====================
+        function setupEventListeners() {
+            // Window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // Keyboard controls
+            window.addEventListener('keydown', function(e) {
+                switch(e.key.toLowerCase()) {
+                    case 'r':
+                        controls.reset();
+                        break;
+                    case 'f':
+                        toggleFullscreen();
+                        break;
+                }
+            });
+            
+            // Add birthday confetti effect on click
+            renderer.domElement.addEventListener('click', function() {
+                createConfetti();
+            });
+        }
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        function createConfetti() {
+            // Simple confetti effect
+            for (let i = 0; i < 20; i++) {
+                const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+                const material = new THREE.MeshBasicMaterial({
+                    color: Math.random() * 0xffffff
+                });
+                const confetti = new THREE.Mesh(geometry, material);
+                
+                confetti.position.set(
+                    (Math.random() - 0.5) * 5,
+                    (Math.random() - 0.5) * 5,
+                    (Math.random() - 0.5) * 5
+                );
+                
+                scene.add(confetti);
+                
+                // Remove after 2 seconds
+                setTimeout(() => {
+                    scene.remove(confetti);
+                }, 2000);
+            }
+        }
+        
+        // ====================
+        // START APPLICATION
+        // ====================
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+            console.log('🚀 3D Birthday Viewer Initialized');
+            console.log('📁 Model URL:', CONFIG.modelUrl);
         });
-        
-        // Console greeting
-        console.log('🎉 Happy Birthday! 3D Room Viewer');
-        console.log('Model URL:', modelUrl);
     </script>
 </body>
 </html>

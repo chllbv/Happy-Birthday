@@ -1,403 +1,114 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>🎂 Happy Birthday - Pink Bedroom</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My 3D Room</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            background: linear-gradient(135deg, #ff6b9d 0%, #ffd166 100%);
-            font-family: 'Arial', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        .header {
-            text-align: center;
-            color: white;
-            padding: 30px 20px;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 10;
-        }
-        
-        h1 {
-            font-size: 3.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #fff, #ffeb3b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .model-container {
-            width: 100%;
-            height: 70vh;
-            position: relative;
-        }
-        
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        /* HEADPHONE DECORATIONS */
-        .decoration {
-            position: absolute;
-            z-index: 100;
-            cursor: pointer;
-            transition: all 0.3s;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
-        }
-        
-        .decoration:hover {
-            transform: scale(1.1) rotate(5deg);
-            filter: drop-shadow(0 8px 25px rgba(0,0,0,0.4));
-        }
-        
-        /* Headphone 1 - Top left corner of room */
-        .headphone-1 {
-            top: 30%;
-            left: 10%;
-            width: 100px;
-        }
-        
-        /* Headphone 2 - On bed */
-        .headphone-2 {
-            top: 50%;
-            right: 15%;
-            width: 80px;
-            transform: rotate(-15deg);
-        }
-        
-        /* Headphone 3 - Floating */
-        .headphone-3 {
-            top: 20%;
-            right: 25%;
-            width: 70px;
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        .decoration img {
-            width: 100%;
-            height: auto;
-        }
-        
-        .decoration-tooltip {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 101;
-            transform: translateY(-100%);
-            margin-top: -10px;
-        }
-        
-        .decoration:hover .decoration-tooltip {
-            opacity: 1;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        
-        .controls {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 25px;
-            border-radius: 15px;
-            max-width: 800px;
-            margin: 30px auto;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        
-        .controls h3 {
-            color: #ff6b9d;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-        
-        .gift-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .gift-item {
-            flex: 1;
-            min-width: 200px;
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        
-        .gift-item:hover {
-            transform: translateY(-5px);
-        }
-        
-        .gift-item img {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            margin-bottom: 10px;
-        }
-        
-        .gift-item h4 {
-            color: #ff6b9d;
-            margin-bottom: 5px;
-        }
-        
-        .footer {
-            text-align: center;
-            color: white;
+            margin: 0;
             padding: 20px;
-            opacity: 0.8;
-            font-size: 0.9rem;
+            font-family: Arial;
+            text-align: center;
         }
-        
-        @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .decoration { display: none; }
-            .headphone-mobile { display: block !important; }
+        iframe {
+            width: 80%;
+            height: 500px;
+            border: none;
+            margin: 20px 0;
         }
-        
-        /* Mobile headphone button */
-        .headphone-mobile {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #ff6b9d;
+        .item {
+            background: #4CAF50;
             color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            font-size: 16px;
+        }
+        .item:hover {
+            background: #45a049;
+        }
+        .preview {
+            display: none;
+            background: white;
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 20px auto;
+            width: 50%;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🎂 HAPPY BIRTHDAY! 🎉</h1>
-        <p class="subtitle">Pink Bedroom with Special Gifts</p>
+    <h1>🎮 My 3D Interactive Room</h1>
+    
+    <!-- STEP 2: I-LAGAY ANG 3D ROOM -->
+    <iframe src="https://sketchfab.com/models/pBrnA/embed" 
+            title="3D Room"
+            allowfullscreen>
+    </iframe>
+    
+    <br>
+    
+    <!-- STEP 3: LAGYAN NG BUTTONS PARA SA ITEMS -->
+    <div>
+        <button class="item" onclick="showItem('headphone')">🎧 Headphones</button>
+        <button class="item" onclick="showItem('book')">📚 Book</button>
+        <button class="item" onclick="showItem('letter')">✉️ Letter</button>
+        <button class="item" onclick="showItem('camera')">📷 Camera</button>
     </div>
     
-    <div class="model-container">
-        <!-- Sketchfab Embed -->
-        <iframe 
-            title="Pink Bedroom 3D Model" 
-            frameborder="0" 
-            allowfullscreen 
-            mozallowfullscreen="true" 
-            webkitallowfullscreen="true" 
-            allow="autoplay; fullscreen; xr-spatial-tracking" 
-            xr-spatial-tracking 
-            execution-while-out-of-viewport 
-            execution-while-not-rendered 
-            web-share 
-            src="https://sketchfab.com/models/pBrnA/embed?autospin=1&autostart=1&ui_controls=1&ui_infos=1&ui_stop=1&ui_theme=dark">
-        </iframe>
-        
-        <!-- HEADPHONE DECORATIONS -->
-        <!-- Headphone 1 - On shelf -->
-        <div class="decoration headphone-1" onclick="showGift('headphone')">
-            <img src="https://cdn-icons-png.flaticon.com/512/2972/2972544.png" alt="Headphones">
-            <div class="decoration-tooltip">🎧 Birthday Headphones</div>
-        </div>
-        
-        <!-- Headphone 2 - On bed -->
-        <div class="decoration headphone-2" onclick="showGift('headphone')">
-            <img src="https://cdn-icons-png.flaticon.com/512/2972/2972544.png" alt="Headphones">
-            <div class="decoration-tooltip">Click me! 🎧</div>
-        </div>
-        
-        <!-- Headphone 3 - Floating -->
-        <div class="decoration headphone-3" onclick="showGift('headphone')">
-            <img src="https://cdn-icons-png.flaticon.com/512/2972/2972544.png" alt="Headphones">
-            <div class="decoration-tooltip">Special Gift! 🎁</div>
-        </div>
-        
-        <!-- Mobile button -->
-        <div class="headphone-mobile" onclick="showGift('headphone')">
-            🎧
-        </div>
+    <!-- STEP 4: PREVIEW AREA FOR EACH ITEM -->
+    <div id="headphone-preview" class="preview">
+        <h2>🎧 My Favorite Headphones</h2>
+        <p><strong>Brand:</strong> Sony WH-1000XM4</p>
+        <p><strong>Why I love it:</strong> Best noise cancellation for focus</p>
+        <button onclick="hidePreview()">Close</button>
     </div>
     
-    <div class="controls">
-        <h3>🎁 Birthday Gifts in the Room</h3>
-        <p>Click on the headphone icons in the 3D room to discover special gifts!</p>
-        
-        <div class="gift-section">
-            <div class="gift-item" id="gift-headphone">
-                <img src="https://cdn-icons-png.flaticon.com/512/2972/2972544.png" alt="Headphones">
-                <h4>Wireless Headphones</h4>
-                <p>Premium sound quality for your music!</p>
-                <button onclick="showGift('headphone')" style="margin-top: 10px; padding: 8px 15px; background: #ff6b9d; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                    View Details
-                </button>
-            </div>
-            
-            <div class="gift-item">
-                <img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" alt="Cake">
-                <h4>Birthday Cake</h4>
-                <p>Special pink-themed cake!</p>
-            </div>
-            
-            <div class="gift-item">
-                <img src="https://cdn-icons-png.flaticon.com/512/2582/2582636.png" alt="Gift Box">
-                <h4>Mystery Box</h4>
-                <p>More surprises inside!</p>
-            </div>
-        </div>
+    <div id="book-preview" class="preview">
+        <h2>📚 Atomic Habits</h2>
+        <p><strong>Author:</strong> James Clear</p>
+        <p><strong>Favorite Quote:</strong> "You do not rise to the level of your goals..."</p>
+        <button onclick="hidePreview()">Close</button>
     </div>
     
-    <div class="footer">
-        <p>💖 Made with love for a special birthday celebration!</p>
-        <p>Click the headphone icons in the 3D room to interact with gifts</p>
+    <div id="letter-preview" class="preview">
+        <h2>✉️ Letter from Grandma</h2>
+        <p><strong>Date:</strong> December 25, 2015</p>
+        <p><strong>Message:</strong> Always follow your dreams...</p>
+        <button onclick="hidePreview()">Close</button>
     </div>
-
-    <!-- Gift Modal -->
-    <div id="giftModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; text-align: center;">
-            <h2 id="modalTitle" style="color: #ff6b9d;">🎧 Special Headphones Gift</h2>
-            <img id="modalImage" src="https://cdn-icons-png.flaticon.com/512/2972/2972544.png" alt="Gift" style="width: 150px; margin: 20px 0;">
-            <p id="modalDescription">These are premium wireless headphones for your birthday! Perfect for listening to your favorite music.</p>
-            <div style="margin-top: 20px;">
-                <button onclick="closeModal()" style="padding: 10px 25px; background: #ff6b9d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
-                    Close
-                </button>
-                <button onclick="birthdayWish()" style="padding: 10px 25px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                    🎂 Birthday Wish
-                </button>
-            </div>
-        </div>
+    
+    <div id="camera-preview" class="preview">
+        <h2>📷 Vintage Film Camera</h2>
+        <p><strong>Model:</strong> Canon AE-1</p>
+        <p><strong>Year:</strong> 1978</p>
+        <button onclick="hidePreview()">Close</button>
     </div>
-
+    
+    <!-- STEP 5: SIMPLE JAVASCRIPT -->
     <script>
-        // Gift information
-        const gifts = {
-            headphone: {
-                title: "🎧 Premium Wireless Headphones",
-                image: "https://cdn-icons-png.flaticon.com/512/2972/2972544.png",
-                description: "Happy Birthday! Here's a special gift of premium wireless headphones with noise cancellation. Perfect for enjoying your favorite music in high quality!"
-            },
-            cake: {
-                title: "🎂 Pink Birthday Cake",
-                image: "https://cdn-icons-png.flaticon.com/512/869/869869.png",
-                description: "A delicious pink-themed birthday cake just for you! Make a wish before blowing the candles."
-            },
-            giftbox: {
-                title: "🎁 Mystery Gift Box",
-                image: "https://cdn-icons-png.flaticon.com/512/2582/2582636.png",
-                description: "What's inside this mystery box? Open it to find more surprises for your special day!"
-            }
-        };
-        
-        // Show gift modal
-        function showGift(giftType) {
-            const gift = gifts[giftType] || gifts.headphone;
-            const modal = document.getElementById('giftModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalImage = document.getElementById('modalImage');
-            const modalDescription = document.getElementById('modalDescription');
+        function showItem(itemName) {
+            // Hide all previews
+            document.querySelectorAll('.preview').forEach(preview => {
+                preview.style.display = 'none';
+            });
             
-            modalTitle.textContent = gift.title;
-            modalImage.src = gift.image;
-            modalDescription.textContent = gift.description;
+            // Show selected preview
+            document.getElementById(itemName + '-preview').style.display = 'block';
             
-            modal.style.display = 'flex';
-            
-            // Add confetti
-            createConfetti();
+            // Optional: Add animation/effect
+            alert("You clicked the " + itemName + "!");
         }
         
-        // Close modal
-        function closeModal() {
-            document.getElementById('giftModal').style.display = 'none';
+        function hidePreview() {
+            document.querySelectorAll('.preview').forEach(preview => {
+                preview.style.display = 'none';
+            });
         }
-        
-        // Birthday wish
-        function birthdayWish() {
-            alert('🎂🎈🎉 HAPPY BIRTHDAY! 🎉🎈🎂\n\n' +
-                  'May all your wishes come true!\n' +
-                  'Enjoy your special day filled with love and joy!\n\n' +
-                  'From your 3D birthday room with love 💖');
-            
-            createConfetti();
-            closeModal();
-        }
-        
-        // Confetti effect
-        function createConfetti() {
-            const colors = ['#ff6b9d', '#ffd166', '#667eea', '#764ba2', '#4CAF50'];
-            
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.style.position = 'fixed';
-                confetti.style.width = '10px';
-                confetti.style.height = '10px';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.borderRadius = '50%';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.top = '-10px';
-                confetti.style.zIndex = '9999';
-                confetti.style.pointerEvents = 'none';
-                
-                document.body.appendChild(confetti);
-                
-                const animation = confetti.animate([
-                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
-                    { transform: `translateY(${window.innerHeight + 10}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
-                ], {
-                    duration: Math.random() * 2000 + 1000,
-                    easing: 'cubic-bezier(0.215, 0.610, 0.355, 1)'
-                });
-                
-                animation.onfinish = () => confetti.remove();
-            }
-        }
-        
-        // Auto celebration
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                createConfetti();
-                console.log('%c🎂 HAPPY BIRTHDAY! 🎉', 'color: #ff6b9d; font-size: 20px; font-weight: bold;');
-                console.log('%cClick the headphone icons in the 3D room!', 'color: #667eea; font-size: 14px;');
-            }, 3000);
-        });
-        
-        // Close modal when clicking outside
-        document.getElementById('giftModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-        
-        // Close with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeModal();
-        });
     </script>
+    
+    <p><em>Click the buttons to see each item's details!</em></p>
 </body>
 </html>

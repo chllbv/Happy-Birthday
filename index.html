@@ -1,68 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D Model Viewer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>Happy Birthday - Pink Bedroom</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
+        body { margin: 0; overflow: hidden; background: #000; }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
+    <div id="loading">Loading Pink Bedroom... 🎂</div>
+    
     <script>
+        // ITO NA ANG WORKING URL MO!
+        const modelUrl = 'https://raw.githubusercontent.com/chllbv/Happy-Birthday/refs/heads/main/pink_bedroom_miside.glb';
+        
         // Scene setup
         const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+        
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
+        camera.position.z = 5;
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
-
-        // Add lights
-        const light = new THREE.AmbientLight(0xffffff, 0.8);
-        scene.add(light);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        directionalLight.position.set(1, 1, 1);
+        
+        // Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 10, 7);
         scene.add(directionalLight);
-
-        // Load your GLB model from GitHub
+        
+        // Load the model
         const loader = new THREE.GLTFLoader();
         
-        // ITO ANG IYONG GLB URL MULA SA GITHUB
-        const modelUrl = 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/YOUR_MODEL.glb';
+        loader.load(
+            modelUrl,
+            function(gltf) {
+                const model = gltf.scene;
+                scene.add(model);
+                
+                // Center and scale
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                
+                // Remove loading text
+                document.getElementById('loading').style.display = 'none';
+                
+                console.log('✅ Model loaded successfully!');
+                console.log('Model size:', size);
+            },
+            function(xhr) {
+                // Loading progress
+                const percent = (xhr.loaded / xhr.total * 100).toFixed(1);
+                document.getElementById('loading').textContent = `Loading... ${percent}%`;
+            },
+            function(error) {
+                console.error('Error loading model:', error);
+                document.getElementById('loading').textContent = 'Error loading model. Check console.';
+                document.getElementById('loading').style.color = 'red';
+            }
+        );
         
-        loader.load(modelUrl, function(gltf) {
-            const model = gltf.scene;
-            scene.add(model);
-            
-            // Center and scale model
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            model.position.sub(center);
-            
-            // Auto-scale
-            const size = box.getSize(new THREE.Vector3());
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 5 / maxDim;
-            model.scale.multiplyScalar(scale);
-        });
-
-        // Camera position
-        camera.position.z = 5;
-
-        // Animation loop
+        // Animation
         function animate() {
             requestAnimationFrame(animate);
+            controls.update();
             renderer.render(scene, camera);
         }
         animate();
-
-        // Handle window resize
+        
+        // Handle resize
         window.addEventListener('resize', function() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+        
+        // Console greeting
+        console.log('🎉 Happy Birthday! 3D Room Viewer');
+        console.log('Model URL:', modelUrl);
     </script>
 </body>
 </html>

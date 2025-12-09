@@ -679,7 +679,7 @@
         </div>
     </div>
 
-    <script>
+      <script>
         // Three.js variables
         let scene, camera, renderer, controls, bedroomModel;
         let lights = [];
@@ -783,11 +783,22 @@
             // IMPORTANT: Update this path to match your GLB file name in GitHub
             const glbUrl = 'pink_bedroom_miside.glb'; // Make sure this matches your file name exactly
             
-            console.log('Loading GLB file from:', glbUrl);
+            console.log('Trying to load GLB file from:', glbUrl);
+            console.log('Current page URL:', window.location.href);
             
-            loader.load(
-                glbUrl,
-                function(gltf) {
+            // FIRST: Try to check if file exists
+            fetch(glbUrl, { method: 'HEAD' })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error(`File not found (${response.status})`);
+                }
+                console.log('GLB file exists! Starting to load...');
+                
+                // File exists, load it
+                loader.load(
+                  glbUrl,
+                  function(gltf) {
+                    console.log('✅ GLB file loaded successfully!');
                     bedroomModel = gltf.scene;
                     
                     // Scale and position the model
@@ -796,53 +807,35 @@
                     
                     // Enable shadows for all children
                     bedroomModel.traverse(function(child) {
-                        if (child.isMesh) {
-                            child.castShadow = true;
-                            child.receiveShadow = true;
-                            
-                            // Add some pink tint to materials
-                            if (child.material) {
-                                if (Array.isArray(child.material)) {
-                                    child.material.forEach(mat => {
-                                        if (mat.color) {
-                                            mat.color.multiplyScalar(1.2);
-                                        }
-                                    });
-                                } else if (child.material.color) {
-                                    child.material.color.multiplyScalar(1.2);
-                                }
-                            }
-                        }
+                      if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                      }
                     });
                     
                     scene.add(bedroomModel);
                     
-                    // Update progress bar
-                    progressBar.style.width = '100%';
-                    
-                    // Hide loading screen and show main content
-                    setTimeout(() => {
-                        loadingScreen.style.opacity = '0';
-                        setTimeout(() => {
-                            loadingScreen.style.display = 'none';
-                            mainContent.style.display = 'block';
-                            playBackgroundMusic();
-                            createParticles();
-                        }, 500);
-                    }, 1000);
-                },
-                function(xhr) {
+                    // Success - show main content
+                    showMainContent();
+                  },
+                  function(xhr) {
                     // Loading progress
                     const percent = (xhr.loaded / xhr.total) * 100;
                     progressBar.style.width = `${percent}%`;
-                    console.log(`Loading model: ${percent.toFixed(2)}%`);
-                },
-                function(error) {
-                    console.error('Error loading GLB file:', error);
-                    alert('Error loading 3D model. Using fallback bedroom instead.');
+                    console.log(`Loading: ${percent.toFixed(2)}%`);
+                  },
+                  function(error) {
+                    console.error('❌ Error loading GLB:', error);
+                    console.log('Using fallback bedroom instead.');
                     createFallbackBedroom();
-                }
-            );
+                  }
+                );
+              })
+              .catch(error => {
+                console.error('❌ Cannot access GLB file:', error);
+                console.log('Using fallback bedroom immediately.');
+                createFallbackBedroom();
+              });
             
             // Handle window resize
             window.addEventListener('resize', onWindowResize, false);
@@ -851,8 +844,25 @@
             animate();
         }
         
+        // Show main content after loading
+        function showMainContent() {
+            progressBar.style.width = '100%';
+            
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    playBackgroundMusic();
+                    createParticles();
+                }, 500);
+            }, 1000);
+        }
+        
         // Create a fallback 3D bedroom if GLB file is not available
         function createFallbackBedroom() {
+            console.log('Creating fallback 3D bedroom...');
+            
             // Create floor
             const floorGeometry = new THREE.PlaneGeometry(15, 15);
             const floorMaterial = new THREE.MeshStandardMaterial({ 
@@ -879,6 +889,24 @@
             backWall.receiveShadow = true;
             scene.add(backWall);
             
+            // Left wall
+            const leftWall = new THREE.Mesh(
+                new THREE.BoxGeometry(0.2, 8, 15),
+                wallMaterial
+            );
+            leftWall.position.set(-7.5, 4, 0);
+            leftWall.receiveShadow = true;
+            scene.add(leftWall);
+            
+            // Right wall
+            const rightWall = new THREE.Mesh(
+                new THREE.BoxGeometry(0.2, 8, 15),
+                wallMaterial
+            );
+            rightWall.position.set(7.5, 4, 0);
+            rightWall.receiveShadow = true;
+            scene.add(rightWall);
+            
             // Create bed
             const bedGeometry = new THREE.BoxGeometry(4, 0.6, 3);
             const bedMaterial = new THREE.MeshStandardMaterial({ 
@@ -891,40 +919,33 @@
             bed.receiveShadow = true;
             scene.add(bed);
             
-            // Add decorative elements
-            addDecorativeElements();
-            
-            // Hide loading screen
-            setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    mainContent.style.display = 'block';
-                    playBackgroundMusic();
-                    createParticles();
-                }, 500);
-            }, 1000);
-        }
-        
-        // Add decorative elements to fallback bedroom
-        function addDecorativeElements() {
-            // Add some floating balloons
-            const balloonGeometry = new THREE.SphereGeometry(0.5, 16, 16);
-            const balloonMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xff1493,
-                roughness: 0.3
+            // Create nightstand
+            const nightstandGeometry = new THREE.BoxGeometry(1, 1.2, 1);
+            const nightstandMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x8b4513,
+                roughness: 0.8
             });
+            const nightstand = new THREE.Mesh(nightstandGeometry, nightstandMaterial);
+            nightstand.position.set(1, 0.6, 3);
+            nightstand.castShadow = true;
+            nightstand.receiveShadow = true;
+            scene.add(nightstand);
             
-            for (let i = 0; i < 5; i++) {
-                const balloon = new THREE.Mesh(balloonGeometry, balloonMaterial);
-                balloon.position.set(
-                    -2 + Math.random() * 4,
-                    5 + Math.random() * 2,
-                    -5 + Math.random() * 3
-                );
-                balloon.castShadow = true;
-                scene.add(balloon);
-            }
+            // Create window
+            const windowGeometry = new THREE.BoxGeometry(3, 2, 0.1);
+            const windowMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x87ceeb,
+                transparent: true,
+                opacity: 0.7
+            });
+            const window = new THREE.Mesh(windowGeometry, windowMaterial);
+            window.position.set(5, 3, -7.4);
+            scene.add(window);
+            
+            console.log('✅ Fallback bedroom created!');
+            
+            // Show main content
+            showMainContent();
         }
         
         // Window resize handler
@@ -941,20 +962,13 @@
             // Update controls
             if (controls) controls.update();
             
-            // Rotate decorative elements if present
-            scene.children.forEach(child => {
-                if (child.userData && child.userData.rotate) {
-                    child.rotation.y += 0.01;
-                }
-            });
-            
             // Render scene
             if (renderer) renderer.render(scene, camera);
         }
         
         // Create floating particles
         function createParticles() {
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 30; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.left = `${Math.random() * 100}%`;
@@ -1131,13 +1145,6 @@
         // Initialize with password focus
         window.addEventListener('load', () => {
             passwordInput.focus();
-            
-            // Add click sound effect
-            document.addEventListener('click', function() {
-                const clickSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3');
-                clickSound.volume = 0.3;
-                clickSound.play().catch(() => {});
-            }, { once: false });
         });
     </script>
 </body>

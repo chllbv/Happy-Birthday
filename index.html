@@ -1,114 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My 3D Room</title>
+    <title>Interactive 3D Room</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial;
-            text-align: center;
+        model-viewer {
+            width: 100%;
+            height: 600px;
+            background-color: #f0f0f0;
         }
-        iframe {
-            width: 80%;
-            height: 500px;
-            border: none;
-            margin: 20px 0;
-        }
-        .item {
-            background: #4CAF50;
-            color: white;
-            padding: 15px 30px;
-            margin: 10px;
-            border: none;
-            border-radius: 5px;
+        .hotspot {
+            background: #fff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        .item:hover {
-            background: #45a049;
-        }
-        .preview {
-            display: none;
+        .item-preview {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: white;
-            border: 2px solid #333;
             padding: 20px;
-            margin: 20px auto;
-            width: 50%;
             border-radius: 10px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <h1>🎮 My 3D Interactive Room</h1>
+    <h1>My Interactive 3D Room</h1>
     
-    <!-- STEP 2: I-LAGAY ANG 3D ROOM -->
-    <iframe src="https://sketchfab.com/models/pBrnA/embed" 
-            title="3D Room"
-            allowfullscreen>
-    </iframe>
-    
-    <br>
-    
-    <!-- STEP 3: LAGYAN NG BUTTONS PARA SA ITEMS -->
-    <div>
-        <button class="item" onclick="showItem('headphone')">🎧 Headphones</button>
-        <button class="item" onclick="showItem('book')">📚 Book</button>
-        <button class="item" onclick="showItem('letter')">✉️ Letter</button>
-        <button class="item" onclick="showItem('camera')">📷 Camera</button>
+    <!-- 3D Model -->
+    <model-viewer
+        src="https://sketchfab.com/models/pBrnA/embed"
+        alt="3D Room"
+        camera-controls
+        auto-rotate
+        ar
+        environment-image="neutral">
+        
+        <!-- Hotspots for clickable items -->
+        <div class="hotspot" slot="hotspot-1" data-position="1 1.5 -2" data-normal="0 1 0" data-item="headphone">
+            🎧
+        </div>
+        <div class="hotspot" slot="hotspot-2" data-position="-1 1 1" data-normal="0 1 0" data-item="book">
+            📚
+        </div>
+        <div class="hotspot" slot="hotspot-3" data-position="0 0.5 -1" data-normal="0 1 0" data-item="letter">
+            ✉️
+        </div>
+        <div class="hotspot" slot="hotspot-4" data-position="1.5 1 0" data-normal="0 1 0" data-item="camera">
+            📷
+        </div>
+    </model-viewer>
+
+    <!-- Item Previews -->
+    <div id="headphone-preview" class="item-preview">
+        <h2>🎧 My Headphones</h2>
+        <p>These are my favorite headphones for music and work.</p>
+        <button onclick="closePreview()">Close</button>
     </div>
     
-    <!-- STEP 4: PREVIEW AREA FOR EACH ITEM -->
-    <div id="headphone-preview" class="preview">
-        <h2>🎧 My Favorite Headphones</h2>
-        <p><strong>Brand:</strong> Sony WH-1000XM4</p>
-        <p><strong>Why I love it:</strong> Best noise cancellation for focus</p>
-        <button onclick="hidePreview()">Close</button>
+    <div id="book-preview" class="item-preview">
+        <h2>📚 Favorite Book</h2>
+        <p>This book changed my perspective on life.</p>
+        <button onclick="closePreview()">Close</button>
     </div>
     
-    <div id="book-preview" class="preview">
-        <h2>📚 Atomic Habits</h2>
-        <p><strong>Author:</strong> James Clear</p>
-        <p><strong>Favorite Quote:</strong> "You do not rise to the level of your goals..."</p>
-        <button onclick="hidePreview()">Close</button>
+    <div id="letter-preview" class="item-preview">
+        <h2>✉️ Special Letter</h2>
+        <p>A meaningful letter from someone important.</p>
+        <button onclick="closePreview()">Close</button>
     </div>
     
-    <div id="letter-preview" class="preview">
-        <h2>✉️ Letter from Grandma</h2>
-        <p><strong>Date:</strong> December 25, 2015</p>
-        <p><strong>Message:</strong> Always follow your dreams...</p>
-        <button onclick="hidePreview()">Close</button>
+    <div id="camera-preview" class="item-preview">
+        <h2>📷 Vintage Camera</h2>
+        <p>My grandfather's old camera that started my photography journey.</p>
+        <button onclick="closePreview()">Close</button>
     </div>
-    
-    <div id="camera-preview" class="preview">
-        <h2>📷 Vintage Film Camera</h2>
-        <p><strong>Model:</strong> Canon AE-1</p>
-        <p><strong>Year:</strong> 1978</p>
-        <button onclick="hidePreview()">Close</button>
-    </div>
-    
-    <!-- STEP 5: SIMPLE JAVASCRIPT -->
+
     <script>
-        function showItem(itemName) {
-            // Hide all previews
-            document.querySelectorAll('.preview').forEach(preview => {
+        // Add click events to hotspots
+        document.querySelectorAll('.hotspot').forEach(hotspot => {
+            hotspot.addEventListener('click', function() {
+                const item = this.getAttribute('data-item');
+                showItemPreview(item);
+            });
+        });
+
+        function showItemPreview(item) {
+            // Hide all previews first
+            document.querySelectorAll('.item-preview').forEach(preview => {
                 preview.style.display = 'none';
             });
             
             // Show selected preview
-            document.getElementById(itemName + '-preview').style.display = 'block';
-            
-            // Optional: Add animation/effect
-            alert("You clicked the " + itemName + "!");
+            document.getElementById(`${item}-preview`).style.display = 'block';
         }
-        
-        function hidePreview() {
-            document.querySelectorAll('.preview').forEach(preview => {
+
+        function closePreview() {
+            document.querySelectorAll('.item-preview').forEach(preview => {
                 preview.style.display = 'none';
             });
         }
     </script>
-    
-    <p><em>Click the buttons to see each item's details!</em></p>
 </body>
 </html>

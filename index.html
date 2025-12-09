@@ -679,9 +679,9 @@
         </div>
     </div>
 
-      <script>
+    <script>
         // Three.js variables
-        let scene, camera, renderer, controls, bedroomModel;
+        let scene, camera, renderer, controls;
         let lights = [];
         let lightsOn = true;
         let backgroundMusic = null;
@@ -704,8 +704,9 @@
                 setTimeout(() => {
                     passwordScreen.style.display = 'none';
                     loadingScreen.style.display = 'flex';
-                    // Initialize 3D scene
-                    init3D();
+                    // Start loading immediately
+                    progressBar.style.width = '30%';
+                    setTimeout(init3D, 500);
                 }, 500);
             } else {
                 alert("Incorrect password! Hint: Try 01012000 (January 1, 2000)");
@@ -723,34 +724,22 @@
         
         // Initialize 3D scene
         function init3D() {
+            progressBar.style.width = '60%';
+            
             // Create scene
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x000000);
             
-            // Add ambient light
+            // Add lights
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
             scene.add(ambientLight);
             lights.push(ambientLight);
             
-            // Add directional light
             const directionalLight = new THREE.DirectionalLight(0xffb6c1, 1.2);
             directionalLight.position.set(5, 10, 7);
             directionalLight.castShadow = true;
-            directionalLight.shadow.mapSize.width = 2048;
-            directionalLight.shadow.mapSize.height = 2048;
             scene.add(directionalLight);
             lights.push(directionalLight);
-            
-            // Add pink accent lights
-            const pinkLight1 = new THREE.PointLight(0xff69b4, 0.8, 25);
-            pinkLight1.position.set(-3, 3, 0);
-            scene.add(pinkLight1);
-            lights.push(pinkLight1);
-            
-            const pinkLight2 = new THREE.PointLight(0xff1493, 0.8, 25);
-            pinkLight2.position.set(3, 3, 0);
-            scene.add(pinkLight2);
-            lights.push(pinkLight2);
             
             // Create camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -777,94 +766,25 @@
             controls.maxDistance = 20;
             controls.maxPolarAngle = Math.PI / 2;
             
-            // Load your GLB file from GitHub
-            const loader = new THREE.GLTFLoader();
+            progressBar.style.width = '80%';
             
-            // IMPORTANT: Update this path to match your GLB file name in GitHub
-            const glbUrl = 'pink_bedroom_miside.glb'; // Make sure this matches your file name exactly
-            
-            console.log('Trying to load GLB file from:', glbUrl);
-            console.log('Current page URL:', window.location.href);
-            
-            // FIRST: Try to check if file exists
-            fetch(glbUrl, { method: 'HEAD' })
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error(`File not found (${response.status})`);
-                }
-                console.log('GLB file exists! Starting to load...');
-                
-                // File exists, load it
-                loader.load(
-                  glbUrl,
-                  function(gltf) {
-                    console.log('✅ GLB file loaded successfully!');
-                    bedroomModel = gltf.scene;
-                    
-                    // Scale and position the model
-                    bedroomModel.scale.set(1, 1, 1);
-                    bedroomModel.position.set(0, 0, 0);
-                    
-                    // Enable shadows for all children
-                    bedroomModel.traverse(function(child) {
-                      if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                      }
-                    });
-                    
-                    scene.add(bedroomModel);
-                    
-                    // Success - show main content
-                    showMainContent();
-                  },
-                  function(xhr) {
-                    // Loading progress
-                    const percent = (xhr.loaded / xhr.total) * 100;
-                    progressBar.style.width = `${percent}%`;
-                    console.log(`Loading: ${percent.toFixed(2)}%`);
-                  },
-                  function(error) {
-                    console.error('❌ Error loading GLB:', error);
-                    console.log('Using fallback bedroom instead.');
-                    createFallbackBedroom();
-                  }
-                );
-              })
-              .catch(error => {
-                console.error('❌ Cannot access GLB file:', error);
-                console.log('Using fallback bedroom immediately.');
-                createFallbackBedroom();
-              });
+            // CREATE SIMPLE BEDROOM IMMEDIATELY (NO GLB LOADING)
+            createSimpleBedroom();
             
             // Handle window resize
             window.addEventListener('resize', onWindowResize, false);
             
             // Start animation loop
             animate();
+            
+            // Show main content
+            showMainContent();
         }
         
-        // Show main content after loading
-        function showMainContent() {
-            progressBar.style.width = '100%';
-            
-            setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    mainContent.style.display = 'block';
-                    playBackgroundMusic();
-                    createParticles();
-                }, 500);
-            }, 1000);
-        }
-        
-        // Create a fallback 3D bedroom if GLB file is not available
-        function createFallbackBedroom() {
-            console.log('Creating fallback 3D bedroom...');
-            
-            // Create floor
-            const floorGeometry = new THREE.PlaneGeometry(15, 15);
+        // Create simple 3D bedroom
+        function createSimpleBedroom() {
+            // Create pink floor
+            const floorGeometry = new THREE.PlaneGeometry(20, 20);
             const floorMaterial = new THREE.MeshStandardMaterial({ 
                 color: 0xffb6c1,
                 roughness: 0.8
@@ -882,88 +802,129 @@
             
             // Back wall
             const backWall = new THREE.Mesh(
-                new THREE.BoxGeometry(15, 8, 0.2),
+                new THREE.BoxGeometry(20, 10, 0.2),
                 wallMaterial
             );
-            backWall.position.set(0, 4, -7.5);
+            backWall.position.set(0, 5, -10);
             backWall.receiveShadow = true;
             scene.add(backWall);
             
-            // Left wall
-            const leftWall = new THREE.Mesh(
-                new THREE.BoxGeometry(0.2, 8, 15),
-                wallMaterial
-            );
-            leftWall.position.set(-7.5, 4, 0);
-            leftWall.receiveShadow = true;
-            scene.add(leftWall);
-            
-            // Right wall
-            const rightWall = new THREE.Mesh(
-                new THREE.BoxGeometry(0.2, 8, 15),
-                wallMaterial
-            );
-            rightWall.position.set(7.5, 4, 0);
-            rightWall.receiveShadow = true;
-            scene.add(rightWall);
-            
             // Create bed
-            const bedGeometry = new THREE.BoxGeometry(4, 0.6, 3);
+            const bedGeometry = new THREE.BoxGeometry(5, 0.8, 3);
             const bedMaterial = new THREE.MeshStandardMaterial({ 
                 color: 0xff69b4,
                 roughness: 0.7
             });
             const bed = new THREE.Mesh(bedGeometry, bedMaterial);
-            bed.position.set(-3, 0.3, 3);
+            bed.position.set(-4, 0.4, 5);
             bed.castShadow = true;
             bed.receiveShadow = true;
             scene.add(bed);
             
+            // Create pillows
+            const pillowGeometry = new THREE.BoxGeometry(1.2, 0.3, 0.8);
+            const pillowMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xff1493,
+                roughness: 0.6
+            });
+            
+            const pillow1 = new THREE.Mesh(pillowGeometry, pillowMaterial);
+            pillow1.position.set(-4.8, 1.1, 5.2);
+            pillow1.castShadow = true;
+            scene.add(pillow1);
+            
+            const pillow2 = new THREE.Mesh(pillowGeometry, pillowMaterial);
+            pillow2.position.set(-3.2, 1.1, 5.2);
+            pillow2.castShadow = true;
+            scene.add(pillow2);
+            
             // Create nightstand
-            const nightstandGeometry = new THREE.BoxGeometry(1, 1.2, 1);
+            const nightstandGeometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
             const nightstandMaterial = new THREE.MeshStandardMaterial({ 
                 color: 0x8b4513,
                 roughness: 0.8
             });
             const nightstand = new THREE.Mesh(nightstandGeometry, nightstandMaterial);
-            nightstand.position.set(1, 0.6, 3);
+            nightstand.position.set(2, 0.75, 5);
             nightstand.castShadow = true;
             nightstand.receiveShadow = true;
             scene.add(nightstand);
             
-            // Create window
-            const windowGeometry = new THREE.BoxGeometry(3, 2, 0.1);
-            const windowMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x87ceeb,
-                transparent: true,
-                opacity: 0.7
+            // Add some decorative elements
+            addDecorativeElements();
+        }
+        
+        // Add decorative elements
+        function addDecorativeElements() {
+            // Add birthday balloons
+            const balloonGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+            const balloonColors = [0xff69b4, 0xff1493, 0xffb6c1, 0xffccff];
+            
+            for (let i = 0; i < 6; i++) {
+                const balloonMaterial = new THREE.MeshStandardMaterial({ 
+                    color: balloonColors[i % balloonColors.length],
+                    roughness: 0.3
+                });
+                const balloon = new THREE.Mesh(balloonGeometry, balloonMaterial);
+                balloon.position.set(
+                    -5 + Math.random() * 10,
+                    6 + Math.random() * 3,
+                    -8 + Math.random() * 4
+                );
+                balloon.castShadow = true;
+                scene.add(balloon);
+            }
+            
+            // Add gift boxes
+            const giftGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const giftMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xff1493,
+                roughness: 0.5
             });
-            const window = new THREE.Mesh(windowGeometry, windowMaterial);
-            window.position.set(5, 3, -7.4);
-            scene.add(window);
             
-            console.log('✅ Fallback bedroom created!');
+            for (let i = 0; i < 3; i++) {
+                const gift = new THREE.Mesh(giftGeometry, giftMaterial);
+                gift.position.set(
+                    3 + i * 1.5,
+                    0.4,
+                    2 + i * 0.5
+                );
+                gift.castShadow = true;
+                gift.receiveShadow = true;
+                scene.add(gift);
+            }
+        }
+        
+        // Show main content
+        function showMainContent() {
+            progressBar.style.width = '100%';
             
-            // Show main content
-            showMainContent();
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    playBackgroundMusic();
+                    createParticles();
+                }, 500);
+            }, 1000);
         }
         
         // Window resize handler
         function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
         }
         
         // Animation loop
         function animate() {
             requestAnimationFrame(animate);
             
-            // Update controls
             if (controls) controls.update();
-            
-            // Render scene
-            if (renderer) renderer.render(scene, camera);
+            if (renderer && scene && camera) renderer.render(scene, camera);
         }
         
         // Create floating particles
@@ -978,114 +939,120 @@
                 particle.style.opacity = `${0.3 + Math.random() * 0.7}`;
                 particle.style.width = `${5 + Math.random() * 10}px`;
                 particle.style.height = particle.style.width;
-                document.getElementById('main-content').appendChild(particle);
+                if (document.getElementById('main-content')) {
+                    document.getElementById('main-content').appendChild(particle);
+                }
             }
         }
         
         // Interactive Hotspots
-        const hotspotAlbum = document.getElementById('hotspot-album');
-        const hotspotCamera = document.getElementById('hotspot-camera');
-        const hotspotMusic = document.getElementById('hotspot-music');
-        const hotspotPhotos = document.getElementById('hotspot-photos');
-        const hotspotHeadphones = document.getElementById('hotspot-headphones');
-        const hotspotWindow = document.getElementById('hotspot-window');
-        
-        // Modals
-        const photoModal = document.getElementById('photo-modal');
-        const videoModal = document.getElementById('video-modal');
-        const musicModal = document.getElementById('music-modal');
-        const photosModal = document.getElementById('photos-modal');
-        const headphonesModal = document.getElementById('headphones-modal');
-        const windowModal = document.getElementById('window-modal');
-        
-        // Close buttons
-        const closePhoto = document.getElementById('close-photo');
-        const closeVideo = document.getElementById('close-video');
-        const closeMusic = document.getElementById('close-music');
-        const closePhotos = document.getElementById('close-photos');
-        const closeHeadphones = document.getElementById('close-headphones');
-        const closeWindow = document.getElementById('close-window');
-        
-        // Open modals when hotspots are clicked
-        hotspotAlbum.addEventListener('click', () => {
-            photoModal.style.display = 'flex';
-        });
-        
-        hotspotCamera.addEventListener('click', () => {
-            videoModal.style.display = 'flex';
-        });
-        
-        hotspotMusic.addEventListener('click', () => {
-            musicModal.style.display = 'flex';
-        });
-        
-        hotspotPhotos.addEventListener('click', () => {
-            photosModal.style.display = 'flex';
-        });
-        
-        hotspotHeadphones.addEventListener('click', () => {
-            headphonesModal.style.display = 'flex';
-        });
-        
-        hotspotWindow.addEventListener('click', () => {
-            windowModal.style.display = 'flex';
-        });
-        
-        // Close modals
-        closePhoto.addEventListener('click', () => {
-            photoModal.style.display = 'none';
-        });
-        
-        closeVideo.addEventListener('click', () => {
-            videoModal.style.display = 'none';
-        });
-        
-        closeMusic.addEventListener('click', () => {
-            musicModal.style.display = 'none';
-        });
-        
-        closePhotos.addEventListener('click', () => {
-            photosModal.style.display = 'none';
-        });
-        
-        closeHeadphones.addEventListener('click', () => {
-            headphonesModal.style.display = 'none';
-        });
-        
-        closeWindow.addEventListener('click', () => {
-            windowModal.style.display = 'none';
-        });
-        
-        // Close modal when clicking outside content
-        const modals = [photoModal, videoModal, musicModal, photosModal, headphonesModal, windowModal];
-        modals.forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
+        document.addEventListener('DOMContentLoaded', function() {
+            const hotspotAlbum = document.getElementById('hotspot-album');
+            const hotspotCamera = document.getElementById('hotspot-camera');
+            const hotspotMusic = document.getElementById('hotspot-music');
+            const hotspotPhotos = document.getElementById('hotspot-photos');
+            const hotspotHeadphones = document.getElementById('hotspot-headphones');
+            const hotspotWindow = document.getElementById('hotspot-window');
+            
+            // Modals
+            const photoModal = document.getElementById('photo-modal');
+            const videoModal = document.getElementById('video-modal');
+            const musicModal = document.getElementById('music-modal');
+            const photosModal = document.getElementById('photos-modal');
+            const headphonesModal = document.getElementById('headphones-modal');
+            const windowModal = document.getElementById('window-modal');
+            
+            // Close buttons
+            const closePhoto = document.getElementById('close-photo');
+            const closeVideo = document.getElementById('close-video');
+            const closeMusic = document.getElementById('close-music');
+            const closePhotos = document.getElementById('close-photos');
+            const closeHeadphones = document.getElementById('close-headphones');
+            const closeWindow = document.getElementById('close-window');
+            
+            // Open modals when hotspots are clicked
+            if (hotspotAlbum) hotspotAlbum.addEventListener('click', () => {
+                if (photoModal) photoModal.style.display = 'flex';
+            });
+            
+            if (hotspotCamera) hotspotCamera.addEventListener('click', () => {
+                if (videoModal) videoModal.style.display = 'flex';
+            });
+            
+            if (hotspotMusic) hotspotMusic.addEventListener('click', () => {
+                if (musicModal) musicModal.style.display = 'flex';
+            });
+            
+            if (hotspotPhotos) hotspotPhotos.addEventListener('click', () => {
+                if (photosModal) photosModal.style.display = 'flex';
+            });
+            
+            if (hotspotHeadphones) hotspotHeadphones.addEventListener('click', () => {
+                if (headphonesModal) headphonesModal.style.display = 'flex';
+            });
+            
+            if (hotspotWindow) hotspotWindow.addEventListener('click', () => {
+                if (windowModal) windowModal.style.display = 'flex';
+            });
+            
+            // Close modals
+            if (closePhoto) closePhoto.addEventListener('click', () => {
+                if (photoModal) photoModal.style.display = 'none';
+            });
+            
+            if (closeVideo) closeVideo.addEventListener('click', () => {
+                if (videoModal) videoModal.style.display = 'none';
+            });
+            
+            if (closeMusic) closeMusic.addEventListener('click', () => {
+                if (musicModal) musicModal.style.display = 'none';
+            });
+            
+            if (closePhotos) closePhotos.addEventListener('click', () => {
+                if (photosModal) photosModal.style.display = 'none';
+            });
+            
+            if (closeHeadphones) closeHeadphones.addEventListener('click', () => {
+                if (headphonesModal) headphonesModal.style.display = 'none';
+            });
+            
+            if (closeWindow) closeWindow.addEventListener('click', () => {
+                if (windowModal) windowModal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            const modals = [photoModal, videoModal, musicModal, photosModal, headphonesModal, windowModal];
+            modals.forEach(modal => {
+                if (modal) {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.style.display = 'none';
+                        }
+                    });
                 }
             });
+            
+            // Controls
+            const resetViewBtn = document.getElementById('reset-view');
+            const hintBtn = document.getElementById('hint-btn');
+            const musicToggleBtn = document.getElementById('music-toggle');
+            const lightsToggleBtn = document.getElementById('lights-toggle');
+            
+            if (resetViewBtn) resetViewBtn.addEventListener('click', () => {
+                if (controls && camera) {
+                    controls.reset();
+                    camera.position.set(0, 3, 8);
+                    controls.update();
+                }
+            });
+            
+            if (hintBtn) hintBtn.addEventListener('click', () => {
+                alert("Click on the glowing pink dots to discover birthday surprises! Each dot opens a different surprise like photos, videos, music, and messages.");
+            });
+            
+            if (musicToggleBtn) musicToggleBtn.addEventListener('click', toggleMusic);
+            if (lightsToggleBtn) lightsToggleBtn.addEventListener('click', toggleLights);
         });
-        
-        // Controls
-        const resetViewBtn = document.getElementById('reset-view');
-        const hintBtn = document.getElementById('hint-btn');
-        const musicToggleBtn = document.getElementById('music-toggle');
-        const lightsToggleBtn = document.getElementById('lights-toggle');
-        
-        resetViewBtn.addEventListener('click', () => {
-            if (controls) {
-                controls.reset();
-                camera.position.set(0, 3, 8);
-                controls.update();
-            }
-        });
-        
-        hintBtn.addEventListener('click', () => {
-            alert("Click on the glowing pink dots to discover birthday surprises! Each dot opens a different surprise like photos, videos, music, and messages.");
-        });
-        
-        musicToggleBtn.addEventListener('click', toggleMusic);
-        lightsToggleBtn.addEventListener('click', toggleLights);
         
         // Music functionality
         function playBackgroundMusic() {
@@ -1097,10 +1064,10 @@
             
             backgroundMusic.play().then(() => {
                 musicPlaying = true;
-                musicToggleBtn.innerHTML = '<i class="fas fa-volume-up"></i> Music ON';
+                const musicToggleBtn = document.getElementById('music-toggle');
+                if (musicToggleBtn) musicToggleBtn.innerHTML = '<i class="fas fa-volume-up"></i> Music ON';
             }).catch(error => {
-                console.log("Autoplay prevented. Click the music button to start music.");
-                musicToggleBtn.innerHTML = '<i class="fas fa-volume-mute"></i> Click to Play';
+                console.log("Autoplay prevented.");
             });
         }
         
@@ -1110,14 +1077,15 @@
                 return;
             }
             
+            const musicToggleBtn = document.getElementById('music-toggle');
             if (musicPlaying) {
                 backgroundMusic.pause();
                 musicPlaying = false;
-                musicToggleBtn.innerHTML = '<i class="fas fa-volume-mute"></i> Music OFF';
+                if (musicToggleBtn) musicToggleBtn.innerHTML = '<i class="fas fa-volume-mute"></i> Music OFF';
             } else {
                 backgroundMusic.play();
                 musicPlaying = true;
-                musicToggleBtn.innerHTML = '<i class="fas fa-volume-up"></i> Music ON';
+                if (musicToggleBtn) musicToggleBtn.innerHTML = '<i class="fas fa-volume-up"></i> Music ON';
             }
         }
         
@@ -1129,14 +1097,15 @@
                 light.visible = lightsOn;
             });
             
+            const lightsToggleBtn = document.getElementById('lights-toggle');
             if (lightsOn) {
-                lightsToggleBtn.innerHTML = '<i class="fas fa-lightbulb"></i> Lights ON';
-                if (scene.background) {
+                if (lightsToggleBtn) lightsToggleBtn.innerHTML = '<i class="fas fa-lightbulb"></i> Lights ON';
+                if (scene && scene.background) {
                     scene.background = new THREE.Color(0x000000);
                 }
             } else {
-                lightsToggleBtn.innerHTML = '<i class="fas fa-lightbulb"></i> Lights OFF';
-                if (scene.background) {
+                if (lightsToggleBtn) lightsToggleBtn.innerHTML = '<i class="fas fa-lightbulb"></i> Lights OFF';
+                if (scene && scene.background) {
                     scene.background = new THREE.Color(0x111111);
                 }
             }
@@ -1144,7 +1113,7 @@
         
         // Initialize with password focus
         window.addEventListener('load', () => {
-            passwordInput.focus();
+            if (passwordInput) passwordInput.focus();
         });
     </script>
 </body>

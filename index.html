@@ -1,26 +1,153 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>3D Interactive Room</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive 3D Bedroom - chllbv</title>
     <style>
-        body { margin: 0; }
-        #container { width: 100vw; height: 100vh; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            z-index: 1000;
+        }
+
         .info-panel {
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(0,0,0,0.7);
-            color: white;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+            display: none;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 10;
+        }
+
+        .info-panel h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+            border-bottom: 2px solid #764ba2;
+            padding-bottom: 5px;
+        }
+
+        .info-panel p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .info-panel img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
             padding: 15px;
             border-radius: 10px;
-            display: none;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            background: #764ba2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .controls button:hover {
+            background: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 28px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div id="container"></div>
-    <div id="info" class="info-panel"></div>
+    <div class="title">Interactive 3D Bedroom</div>
     
+    <div id="loading">
+        <div>Loading 3D Room...</div>
+        <div style="margin-top: 20px; font-size: 16px;">Please wait</div>
+    </div>
+    
+    <div id="container"></div>
+    
+    <div id="info" class="info-panel">
+        <img id="info-image" src="" alt="Object">
+        <h3 id="info-title">Object</h3>
+        <p id="info-text">Description will appear here</p>
+    </div>
+    
+    <div class="instructions">
+        Click on objects to interact | Scroll to zoom | Drag to rotate
+    </div>
+    
+    <div class="controls">
+        <button onclick="resetView()">Reset View</button>
+        <button onclick="toggleAutoRotate()">Auto Rotate</button>
+    </div>
+
     <script type="importmap">
     {
         "imports": {
